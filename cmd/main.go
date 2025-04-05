@@ -1,14 +1,17 @@
 package main
 
 import (
-	"alive-library/internal/routes"
 	"github.com/gin-gonic/gin"
+	"living-library/internal/database"
+	"living-library/internal/routes"
 )
 
 func main() {
-	router := gin.Default()
+	database.InitDB()
 
-	routes.RegisterBookRoutes(router)
+	r := gin.Default()
 
-	router.Run(":8080")
+	routes.RegisterBookRoutes(r)
+
+	r.Run(":8080")
 }

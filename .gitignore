@@ -1,0 +1,22 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Dependency directories
+vendor/
+
+# IDEs
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+
+# Database
+pgdata/
+.env

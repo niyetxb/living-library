@@ -1,47 +1,43 @@
 package repository
 
-import "alive-library/internal/models"
+import (
+	"living-library/internal/database"
+	"living-library/internal/models"
+)
 
-var books = []models.Book{
-	{ID: 1, Title: "1984", Author: "George Orwell", Year: 1949},
+func GetBooks() ([]models.Book, error) {
+	var books []models.Book
+	result := database.DB.Find(&books)
+	return books, result.Error
 }
 
-func GetBooks() []models.Book {
-	return books
-}
-
-func GetBookByID(id uint) *models.Book {
-	for _, book := range books {
-		if book.ID == id {
-			return &book
-		}
+func GetBookByID(id uint) (*models.Book, error) {
+	var book models.Book
+	result := database.DB.First(&book, id)
+	if result.Error != nil {
+		return nil, result.Error
 	}
-	return nil
+	return &book, nil
 }
 
-func CreateBook(book models.Book) models.Book {
-	book.ID = uint(len(books) + 1)
-	books = append(books, book)
-	return book
+func CreateBook(book models.Book) (models.Book, error) {
+	result := database.DB.Create(&book)
+	return book, result.Error
 }
 
-func UpdateBook(id uint, updatedBook models.Book) *models.Book {
-	for i, book := range books {
-		if book.ID == id {
-			books[i] = updatedBook
-			books[i].ID = id
-			return &books[i]
-		}
+func UpdateBook(id uint, updated models.Book) (*models.Book, error) {
+	var book models.Book
+	if err := database.DB.First(&book, id).Error; err != nil {
+		return nil, err
 	}
-	return nil
+	book.Title = updated.Title
+	book.Author = updated.Author
+	book.Year = updated.Year
+	database.DB.Save(&book)
+	return &book, nil
 }
 
-func DeleteBook(id uint) bool {
-	for i, book := range books {
-		if book.ID == id {
-			books = append(books[:i], books[i+1:]...)
-			return true
-		}
-	}
-	return false
+func DeleteBook(id uint) error {
+	result := database.DB.Delete(&models.Book{}, id)
+	return result.Error
 }

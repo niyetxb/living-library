@@ -1,17 +1,17 @@
 package routes
 
 import (
-	"alive-library/internal/delivery"
 	"github.com/gin-gonic/gin"
+	"living-library/internal/delivery"
 )
 
-func RegisterBookRoutes(router *gin.Engine) {
-	books := router.Group("/books")
+func RegisterBookRoutes(r *gin.Engine) {
+	bookRoutes := r.Group("/books")
 	{
-		books.GET("/", delivery.GetBooks)
-		books.GET("/:id", delivery.GetBook)
-		books.POST("/", delivery.CreateBook)
-		books.PUT("/:id", delivery.UpdateBook)
-		books.DELETE("/:id", delivery.DeleteBook)
+		bookRoutes.GET("/", handlers.GetBooks)
+		bookRoutes.GET("/:id", handlers.GetBookByID)
+		bookRoutes.POST("/", handlers.CreateBook)
+		bookRoutes.PUT("/:id", handlers.UpdateBook)
+		bookRoutes.DELETE("/:id", handlers.DeleteBook)
 	}
 }
