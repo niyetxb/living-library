@@ -1,15 +1,23 @@
-package handlers
+package delivery
 
 import (
 	"github.com/gin-gonic/gin"
 	"living-library/internal/models"
-	"living-library/internal/repository"
+	"living-library/internal/services"
 	"net/http"
 	"strconv"
 )
 
-func GetBooks(c *gin.Context) {
-	books, err := repository.GetBooks()
+type BookDelivery struct {
+	BookService *services.BookService
+}
+
+func NewBookDelivery(bookService *services.BookService) *BookDelivery {
+	return &BookDelivery{BookService: bookService}
+}
+
+func (d *BookDelivery) GetBooks(c *gin.Context) {
+	books, err := d.BookService.GetBooks()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch books"})
 		return
@@ -17,14 +25,14 @@ func GetBooks(c *gin.Context) {
 	c.JSON(http.StatusOK, books)
 }
 
-func GetBookByID(c *gin.Context) {
+func (d *BookDelivery) GetBookByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
 
-	book, err := repository.GetBookByID(uint(id))
+	book, err := d.BookService.GetBookByID(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
 		return
@@ -32,14 +40,14 @@ func GetBookByID(c *gin.Context) {
 	c.JSON(http.StatusOK, book)
 }
 
-func CreateBook(c *gin.Context) {
+func (d *BookDelivery) CreateBook(c *gin.Context) {
 	var book models.Book
 	if err := c.ShouldBindJSON(&book); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
 	}
 
-	createdBook, err := repository.CreateBook(book)
+	createdBook, err := d.BookService.CreateBook(book)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create book"})
 		return
@@ -47,7 +55,7 @@ func CreateBook(c *gin.Context) {
 	c.JSON(http.StatusCreated, createdBook)
 }
 
-func UpdateBook(c *gin.Context) {
+func (d *BookDelivery) UpdateBook(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
@@ -60,7 +68,7 @@ func UpdateBook(c *gin.Context) {
 		return
 	}
 
-	book, err := repository.UpdateBook(uint(id), updatedBook)
+	book, err := d.BookService.UpdateBook(uint(id), updatedBook)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
 		return
@@ -69,14 +77,14 @@ func UpdateBook(c *gin.Context) {
 	c.JSON(http.StatusOK, book)
 }
 
-func DeleteBook(c *gin.Context) {
+func (d *BookDelivery) DeleteBook(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
 
-	err = repository.DeleteBook(uint(id))
+	err = d.BookService.DeleteBook(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
 		return

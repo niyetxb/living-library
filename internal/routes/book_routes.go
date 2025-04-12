@@ -5,13 +5,13 @@ import (
 	"living-library/internal/delivery"
 )
 
-func RegisterBookRoutes(r *gin.Engine) {
+func RegisterBookRoutes(r *gin.Engine, delivery *delivery.BookDelivery) {
 	bookRoutes := r.Group("/books")
 	{
-		bookRoutes.GET("/", handlers.GetBooks)
-		bookRoutes.GET("/:id", handlers.GetBookByID)
-		bookRoutes.POST("/", handlers.CreateBook)
-		bookRoutes.PUT("/:id", handlers.UpdateBook)
-		bookRoutes.DELETE("/:id", handlers.DeleteBook)
+		bookRoutes.GET("/", delivery.GetBooks)
+		bookRoutes.GET("/:id", delivery.GetBookByID)
+		bookRoutes.POST("/", delivery.CreateBook)
+		bookRoutes.PUT("/:id", delivery.UpdateBook)
+		bookRoutes.DELETE("/:id", delivery.DeleteBook)
 	}
 }
