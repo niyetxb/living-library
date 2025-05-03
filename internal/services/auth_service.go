@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"golang.org/x/crypto/bcrypt"
+	"living-library/internal/database"
 	"living-library/internal/models"
 	"living-library/internal/repository"
 )
@@ -29,16 +30,22 @@ func (s *AuthService) Register(user *models.User) (*models.User, error) {
 }
 
 func (s *AuthService) Login(username, password string) (*models.User, error) {
-	user, err := s.UserRepository.GetUserByUsername(username)
-	if err != nil {
+	var u models.User
+	if err := database.DB.Where("username = ?", username).First(&u).Error; err != nil {
+		return nil, errors.New("user not found")
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)); err != nil {
+		return nil, errors.New("login or password incorrect")
+	}
+	return &u, nil
+}
+
+func (s *AuthService) GetByUsername(username string) (*models.User, error) {
+	var user models.User
+	if err := database.DB.Where("username = ?", username).First(&user).Error; err != nil {
 		return nil, err
 	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	if err != nil {
-		return nil, errors.New("invalid credentials")
-	}
-	return user, nil
+	return &user, nil
 }
 
 func (s *AuthService) UpdateProfile(user *models.User) (*models.User, error) {

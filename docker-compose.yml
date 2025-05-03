@@ -13,5 +13,19 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  app:
+    build: .
+    container_name: living-library-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: living_library
+
 volumes:
   pgdata:

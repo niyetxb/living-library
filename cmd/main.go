@@ -12,18 +12,14 @@ import (
 
 func main() {
 	database.InitDB()
-	bookRepo := repository.NewBookRepository()
-	userRepo := repository.NewUserRepository()
 
+	bookRepo := repository.NewBookRepository()
 	bookService := services.NewBookService(bookRepo)
-	authService := services.NewAuthService(userRepo)
 
 	bookDelivery := delivery.NewBookDelivery(bookService)
-	authHandler := delivery.NewAuthHandler(authService)
-
+	authHandler := delivery.NewAuthHandler()
 	r := gin.Default()
-	routes.RegisterBookRoutes(r, bookDelivery)
-	routes.RegisterAuthRoutes(r, authHandler)
+	routes.SetupRoutes(r, bookDelivery, authHandler)
 
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal("Сервер не смог запуститься: ", err)

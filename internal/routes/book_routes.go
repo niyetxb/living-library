@@ -6,14 +6,17 @@ import (
 	"living-library/internal/middleware"
 )
 
-func RegisterBookRoutes(r *gin.Engine, delivery *delivery.BookDelivery) {
-	bookRoutes := r.Group("/books")
+func SetupRoutes(r *gin.Engine, delivery *delivery.BookDelivery, authHandler *delivery.AuthHandler) {
+
+	r.POST("/register", authHandler.Register)
+	r.POST("/login", authHandler.Login)
+
+	bookRoutes := r.Group("/books", middleware.AuthMiddleware())
 	{
 		bookRoutes.GET("/", delivery.GetBooks)
 		bookRoutes.GET("/:id", delivery.GetBookByID)
-
-		bookRoutes.POST("/", middleware.AuthMiddleware(), middleware.AdminOnly(), delivery.CreateBook)
-		bookRoutes.PUT("/:id", middleware.AuthMiddleware(), middleware.AdminOnly(), delivery.UpdateBook)
-		bookRoutes.DELETE("/:id", middleware.AuthMiddleware(), middleware.AdminOnly(), delivery.DeleteBook)
+		bookRoutes.POST("/", middleware.AdminOnly(), delivery.CreateBook)
+		bookRoutes.PUT("/:id", middleware.AdminOnly(), delivery.UpdateBook)
+		bookRoutes.DELETE("/:id", middleware.AdminOnly(), delivery.DeleteBook)
 	}
 }

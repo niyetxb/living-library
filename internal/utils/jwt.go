@@ -9,13 +9,13 @@ import (
 var jwtKey = []byte("your-secret-key")
 
 type Claims struct {
-	UserID uint
-	Role   string
+	UserID uint   `json:"user_id"`
+	Role   string `json:"role"`
 	jwt.RegisteredClaims
 }
 
 func GenerateJWT(userID uint, role string) (string, error) {
-	claims := Claims{
+	claims := &Claims{
 		UserID: userID,
 		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -27,7 +27,7 @@ func GenerateJWT(userID uint, role string) (string, error) {
 }
 
 func ParseJWT(tokenStr string) (*Claims, error) {
-	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(t *jwt.Token) (interface{}, error) {
 		return jwtKey, nil
 	})
 	if err != nil {
@@ -36,5 +36,5 @@ func ParseJWT(tokenStr string) (*Claims, error) {
 	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
 		return claims, nil
 	}
-	return nil, err
+	return nil, jwt.ErrTokenInvalidClaims
 }
